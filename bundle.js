@@ -81,6 +81,11 @@
 	          $li.addClass("snake");
 	        }
 
+	        const currCoordApple = this.board.apples[0];
+	        if (currCoordApple.coord.x === i && currCoordApple.coord.y === j) {
+	          $li.addClass("apple");
+	        }
+
 	        $ul.append($li);
 	      }
 	      this.$el.append($ul);
@@ -99,11 +104,25 @@
 	  }
 
 	  step() {
+	    // How do we detect if the Snake collides with the Apple?
+	    // The window waits for USER input
+	    // The input triggers the change in "direction"
+	    // The SnakeView has a `setInterval` set for every half a second
+	    // The step function is invoked
+	    // Calls the move function
+	    // The snakes moves
+	    // Then, we check for collision?
+	    // @ DOM Level:
+	    // Each <li> items does not have any "data" attribute
+	    //
+
 	    const validMove = this.board.snake.move();
 	    if (validMove) {
 	      this.renderBoard();
 	    } else {
-	      alert("You lose.")
+	      // const $lists = $("li");
+	      // $lists.removeClass("snake");
+	      alert("You lose!")
 	      window.clearInterval(this.intervalId);
 	    }
 	  }
@@ -138,7 +157,8 @@
 	    this.snake = new Snake(this);
 	    this.grid = [];
 
-	    // LATER: your `Board` can hold on to the apples that are on the board...
+	    const apple = new Apple(dim);
+	    this.apples = [apple];
 	    this.setUpBoard();
 	  }
 
@@ -239,8 +259,10 @@
 	const Coord = __webpack_require__(4);
 
 	class Apple {
-	  constructor() {
-	    this.coord = new Coord([Math.floor(Math.random() * 20), Math.floor(Math.random() * 20)]);
+	  constructor(dim) {
+	    this.coord = new Coord(
+	      (Math.floor(Math.random() * dim)), (Math.floor(Math.random() * dim))
+	    );
 	  }
 	}
 

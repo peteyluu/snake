@@ -7,7 +7,8 @@ class Board {
     this.snake = new Snake(this);
     this.grid = [];
 
-    // LATER: your `Board` can hold on to the apples that are on the board...
+    const apple = new Apple(dim);
+    this.apples = [apple];
     this.setUpBoard();
   }
 

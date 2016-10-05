@@ -1,8 +1,10 @@
 const Coord = require('./coord.js');
 
 class Apple {
-  constructor() {
-    this.coord = new Coord([Math.floor(Math.random() * 20), Math.floor(Math.random() * 20)]);
+  constructor(dim) {
+    this.coord = new Coord(
+      (Math.floor(Math.random() * dim)), (Math.floor(Math.random() * dim))
+    );
   }
 }
 
