@@ -4,11 +4,10 @@ class SnakeView {
   constructor($el) {
     this.$el = $el;
     this.board = new Board(20);
-
     this.setUpBoard();
-    this.bindEvents();
 
-    this.intervalId = window.setInterval(this.step.bind(this), 500);
+    this.bindEvents();
+    this.intervalId = window.setInterval(this.step.bind(this), 1000);
   }
 
   setUpBoard() {
@@ -23,9 +22,11 @@ class SnakeView {
           $li.addClass("snake");
         }
 
-        const currCoordApple = this.board.apples[0];
-        if (currCoordApple.coord.x === i && currCoordApple.coord.y === j) {
-          $li.addClass("apple");
+        if (this.board.apples.length > 0) {
+          const currCoordApple = this.board.apples[0];
+          if (currCoordApple.coord.x === i && currCoordApple.coord.y === j) {
+            $li.addClass("apple");
+          }
         }
 
         $ul.append($li);
@@ -46,25 +47,19 @@ class SnakeView {
   }
 
   step() {
-    // How do we detect if the Snake collides with the Apple?
-    // The window waits for USER input
-    // The input triggers the change in "direction"
-    // The SnakeView has a `setInterval` set for every half a second
-    // The step function is invoked
-    // Calls the move function
-    // The snakes moves
-    // Then, we check for collision?
-    // @ DOM Level:
-    // Each <li> items does not have any "data" attribute
-    //
-
     const validMove = this.board.snake.move();
+
+    const isAppleEaten = this.board.snake.eatsApple();
+
+    if (isAppleEaten) {
+      const $lists = $("li");
+      $lists.removeClass("apple");
+    }
+
     if (validMove) {
       this.renderBoard();
     } else {
-      // const $lists = $("li");
-      // $lists.removeClass("snake");
-      alert("You lose!")
+      alert("You lose!");
       window.clearInterval(this.intervalId);
     }
   }

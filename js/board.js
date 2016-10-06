@@ -28,6 +28,10 @@ class Board {
     }
     return false;
   }
+
+  newApple() {
+    this.apples.push(new Apple(this.dim));
+  }
 }
 
 module.exports = Board;

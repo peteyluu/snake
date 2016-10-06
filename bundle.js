@@ -62,11 +62,10 @@
 	  constructor($el) {
 	    this.$el = $el;
 	    this.board = new Board(20);
-
 	    this.setUpBoard();
-	    this.bindEvents();
 
-	    this.intervalId = window.setInterval(this.step.bind(this), 500);
+	    this.bindEvents();
+	    this.intervalId = window.setInterval(this.step.bind(this), 1000);
 	  }
 
 	  setUpBoard() {
@@ -81,9 +80,11 @@
 	          $li.addClass("snake");
 	        }
 
-	        const currCoordApple = this.board.apples[0];
-	        if (currCoordApple.coord.x === i && currCoordApple.coord.y === j) {
-	          $li.addClass("apple");
+	        if (this.board.apples.length > 0) {
+	          const currCoordApple = this.board.apples[0];
+	          if (currCoordApple.coord.x === i && currCoordApple.coord.y === j) {
+	            $li.addClass("apple");
+	          }
 	        }
 
 	        $ul.append($li);
@@ -104,25 +105,19 @@
 	  }
 
 	  step() {
-	    // How do we detect if the Snake collides with the Apple?
-	    // The window waits for USER input
-	    // The input triggers the change in "direction"
-	    // The SnakeView has a `setInterval` set for every half a second
-	    // The step function is invoked
-	    // Calls the move function
-	    // The snakes moves
-	    // Then, we check for collision?
-	    // @ DOM Level:
-	    // Each <li> items does not have any "data" attribute
-	    //
-
 	    const validMove = this.board.snake.move();
+
+	    const isAppleEaten = this.board.snake.eatsApple();
+
+	    if (isAppleEaten) {
+	      const $lists = $("li");
+	      $lists.removeClass("apple");
+	    }
+
 	    if (validMove) {
 	      this.renderBoard();
 	    } else {
-	      // const $lists = $("li");
-	      // $lists.removeClass("snake");
-	      alert("You lose!")
+	      alert("You lose!");
 	      window.clearInterval(this.intervalId);
 	    }
 	  }
@@ -178,6 +173,10 @@
 	    }
 	    return false;
 	  }
+
+	  newApple() {
+	    this.apples.push(new Apple(this.dim));
+	  }
 	}
 
 	module.exports = Board;
@@ -197,6 +196,26 @@
 	    this.segments = [center];
 	  }
 
+	  eatsApple() {
+	    const headOfSnakeCoord = this.segments[0];
+	    const appleCoord = this.board.apples[0];
+	    if (headOfSnakeCoord.equals(appleCoord.coord)) {
+	      // this.evolve();
+	      this.board.apples.shift();
+	      this.board.newApple();
+	      return true;
+	    } else {
+	      return false;
+	    }
+	  }
+
+	  evolve() {
+	    const coordDelta = Snake.OPPOSITE_MOVES[this.direction];
+	    const currCoord = this.segments[0];
+	    const newCoord = currCoord.plus(coordDelta);
+	    this.segments.push(newCoord);
+	  }
+
 	  move() {
 	    const coordDelta = Snake.MOVES[this.direction];
 	    const currCoord = this.segments.shift();
@@ -206,7 +225,7 @@
 	    if (this.board.isOutOfBounds(newCoord)) {
 	      return false;
 	    } else {
-	      this.segments.push(currCoord.plus(coordDelta));
+	      this.segments.push(newCoord);
 	      return true;
 	    }
 	  }
@@ -214,6 +233,13 @@
 	  turn(direction) {
 	    this.direction = direction;
 	  }
+	}
+
+	Snake.OPPOSITE_MOVES = {
+	  "N": [ 1,  0],
+	  "W": [ 0,  1],
+	  "E": [ 0, -1],
+	  "S": [-1,  0]
 	}
 
 	Snake.MOVES = {
@@ -237,7 +263,7 @@
 	  }
 
 	  plus(otherCoord) {
-	    return new Coord(this.x += otherCoord[0], this.y += otherCoord[1])
+	    return new Coord(this.x += otherCoord[0], this.y += otherCoord[1]);
 	  }
 
 	  equals(otherCoord) {
