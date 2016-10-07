@@ -62,12 +62,12 @@
 	  constructor($el) {
 	    this.$el = $el;
 	    this.board = new Board(20);
-	    this.setUpBoard();
+	    this.setUpGrid();
 	    this.bindEvents();
-	    this.intervalId = window.setInterval(this.step.bind(this), 500);
+	    this.intervalId = window.setInterval(this.step.bind(this), 100);
 	  }
 
-	  setUpBoard() {
+	  setUpGrid() {
 	    for (let i = 0; i < this.board.dim; i++) {
 	      const $ul = $('<ul>');
 
@@ -83,8 +83,8 @@
 	        }
 
 	        if (this.board.apples.length > 0) {
-	          const currCoordApple = this.board.apples[0];
-	          if (currCoordApple.coord.x === i && currCoordApple.coord.y === j) {
+	          const currCoordApple = this.board.getApple();
+	          if (currCoordApple.x === i && currCoordApple.y === j) {
 	            $li.addClass("apple");
 	          }
 	        }
@@ -102,57 +102,23 @@
 	  }
 
 	  handleKeyEvent(event) {
-	    const direction = SnakeView.CODES[event.keyCode];
-	    if (this.isValidKeyEvent(direction)) {
-	      this.board.snake.turn(direction);
-	    }
-	  }
-
-	  isValidKeyEvent(direction) {
-	    if ( (this.board.snake.direction === "N" && direction === "S") ||
-	         (this.board.snake.direction === "S" && direction === "N") ||
-	         (this.board.snake.direction === "W" && direction === "E") ||
-	         (this.board.snake.direction === "E" && direction === "W") ) {
-	      return false;
-	    }
-	    return true;
+	    this.board.snake.turn(SnakeView.CODES[event.keyCode]);
 	  }
 
 	  step() {
-	    if (this.board.getSnakeSegments().length > 0) {
+	    if (this.board.snake.segments.length > 0) {
 	      this.board.snake.move();
 	    } else {
 	      alert("You lose!");
 	      window.clearInterval(this.intervalId);
 	    }
-	    this.renderBoard();
-
-	    // const isAppleEaten = this.board.snake.eatsApple();
-	    // var isValidMove = null;
-	    //
-	    // if (isAppleEaten) {
-	    //   isValidMove = this.board.snake.move(true)
-	    // } else {
-	    //   isValidMove = this.board.snake.move();
-	    // }
-	    //
-	    // if (isAppleEaten) {
-	    //   const $lists = $("li");
-	    //   $lists.removeClass("apple");
-	    // }
-	    //
-	    // if (isValidMove) {
-	    //   this.renderBoard();
-	    // } else {
-	    //   alert("You lose!");
-	    //   window.clearInterval(this.intervalId);
-	    // }
+	    this.render();
 	  }
 
-	  renderBoard() {
+	  render() {
 	    const $snake = $(".snake-game");
 	    $snake.children().remove();
-	    this.setUpBoard();
+	    this.setUpGrid();
 	  }
 	}
 
@@ -208,10 +174,6 @@
 	    this.apples.shift();
 	    this.apples.push(new Apple(this));
 	  }
-
-	  getSnakeSegments() {
-	    return this.snake.segments;
-	  }
 	}
 
 	module.exports = Board;
@@ -252,15 +214,36 @@
 	      this.segments.shift();
 	    }
 
-	    // destroy snake if it runs off grid
-	    if (this.board.isOutOfBounds(this.head())) {
+	    if (!this.isValidSegments()) {
 	      this.segments = [];
 	    }
+	  }
 
+	  isValidSegments() {
+	    if (this.board.isOutOfBounds(this.head()) || this.eatsItself()) {
+	      return false;
+	    }
+	    return true;
 	  }
 
 	  turn(direction) {
-	    this.direction = direction;
+	    if (!this.isValidDirection(direction)) {
+	      this.direction = direction;
+	    }
+	  }
+
+	  eatsItself() {
+	    const head = this.head();
+	    for (let i = 0; i < this.segments.length - 1; i++) {
+	      if (head.equals(this.segments[i])) {
+	        return true;
+	      }
+	    }
+	    return false;
+	  }
+
+	  isValidDirection(direction) {
+	    return Snake.MOVES[this.direction].isOpposite(Snake.MOVES[direction]);
 	  }
 	}
 

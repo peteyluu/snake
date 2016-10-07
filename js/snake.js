@@ -21,25 +21,44 @@ class Snake {
   }
 
   move() {
-    // move the snake towards the `this.direction`
-    // this essentially generates a new Snake Head Coord
     this.segments.push(this.head().plus(Snake.MOVES[this.direction]));
 
-    // check if the Snake's head Coord eats Apple
     if (this.eatsApple()) {
       this.board.newApple();
     } else {
       this.segments.shift();
     }
 
-    // destroy snake if it runs off grid
-    if (this.board.isOutOfBounds(this.head())) {
+    if (!this.isValidSegments()) {
       this.segments = [];
     }
   }
 
+  isValidSegments() {
+    if (this.board.isOutOfBounds(this.head()) || this.eatsItself()) {
+      return false;
+    }
+    return true;
+  }
+
   turn(direction) {
-    this.direction = direction;
+    if (!this.isValidDirection(direction)) {
+      this.direction = direction;
+    }
+  }
+
+  eatsItself() {
+    const head = this.head();
+    for (let i = 0; i < this.segments.length - 1; i++) {
+      if (head.equals(this.segments[i])) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  isValidDirection(direction) {
+    return Snake.MOVES[this.direction].isOpposite(Snake.MOVES[direction]);
   }
 }
 

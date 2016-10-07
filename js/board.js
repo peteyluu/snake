@@ -36,10 +36,6 @@ class Board {
     this.apples.shift();
     this.apples.push(new Apple(this));
   }
-
-  getSnakeSegments() {
-    return this.snake.segments;
-  }
 }
 
 module.exports = Board;
