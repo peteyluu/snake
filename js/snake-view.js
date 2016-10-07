@@ -5,9 +5,8 @@ class SnakeView {
     this.$el = $el;
     this.board = new Board(20);
     this.setUpBoard();
-
     this.bindEvents();
-    this.intervalId = window.setInterval(this.step.bind(this), 1000);
+    this.intervalId = window.setInterval(this.step.bind(this), 500);
   }
 
   setUpBoard() {
@@ -17,9 +16,12 @@ class SnakeView {
       for (let j = 0; j < this.board.dim; j++) {
         const $li = $('<li>');
 
-        const currCoord = this.board.snake.segments[0];
-        if (currCoord.x === i && currCoord.y === j) {
-          $li.addClass("snake");
+
+        for (let k = 0; k < this.board.snake.segments.length; k++) {
+          const currCoord = this.board.snake.segments[k];
+          if (currCoord.x === i && currCoord.y === j) {
+            $li.addClass("snake");
+          }
         }
 
         if (this.board.apples.length > 0) {
@@ -43,25 +45,29 @@ class SnakeView {
 
   handleKeyEvent(event) {
     const direction = SnakeView.CODES[event.keyCode];
-    this.board.snake.turn(direction);
+    if (this.isValidKeyEvent(direction)) {
+      this.board.snake.turn(direction);
+    }
+  }
+
+  isValidKeyEvent(direction) {
+    if ( (this.board.snake.direction === "N" && direction === "S") ||
+         (this.board.snake.direction === "S" && direction === "N") ||
+         (this.board.snake.direction === "W" && direction === "E") ||
+         (this.board.snake.direction === "E" && direction === "W") ) {
+      return false;
+    }
+    return true;
   }
 
   step() {
-    const validMove = this.board.snake.move();
-
-    const isAppleEaten = this.board.snake.eatsApple();
-
-    if (isAppleEaten) {
-      const $lists = $("li");
-      $lists.removeClass("apple");
-    }
-
-    if (validMove) {
-      this.renderBoard();
+    if (this.board.getSnakeSegments().length > 0) {
+      this.board.snake.move();
     } else {
       alert("You lose!");
       window.clearInterval(this.intervalId);
     }
+    this.renderBoard();
   }
 
   renderBoard() {

@@ -6,8 +6,7 @@ class Board {
     this.dim = dim;
     this.snake = new Snake(this);
     this.grid = [];
-
-    const apple = new Apple(dim);
+    const apple = new Apple(this);
     this.apples = [apple];
     this.setUpBoard();
   }
@@ -29,8 +28,17 @@ class Board {
     return false;
   }
 
+  getApple() {
+    return this.apples[0].coord;
+  }
+
   newApple() {
-    this.apples.push(new Apple(this.dim));
+    this.apples.shift();
+    this.apples.push(new Apple(this));
+  }
+
+  getSnakeSegments() {
+    return this.snake.segments;
   }
 }
 

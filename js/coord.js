@@ -5,7 +5,7 @@ class Coord {
   }
 
   plus(otherCoord) {
-    return new Coord(this.x += otherCoord[0], this.y += otherCoord[1]);
+    return new Coord(this.x + otherCoord.x, this.y + otherCoord.y);
   }
 
   equals(otherCoord) {

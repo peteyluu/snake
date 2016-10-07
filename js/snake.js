@@ -9,36 +9,32 @@ class Snake {
   }
 
   eatsApple() {
-    const headOfSnakeCoord = this.segments[0];
-    const appleCoord = this.board.apples[0];
-    if (headOfSnakeCoord.equals(appleCoord.coord)) {
-      // this.evolve();
-      this.board.apples.shift();
-      this.board.newApple();
+    if (this.head().equals(this.board.getApple())) {
       return true;
     } else {
       return false;
     }
   }
 
-  evolve() {
-    const coordDelta = Snake.OPPOSITE_MOVES[this.direction];
-    const currCoord = this.segments[0];
-    const newCoord = currCoord.plus(coordDelta);
-    this.segments.push(newCoord);
+  head() {
+    return this.segments.slice(-1)[0];
   }
 
   move() {
-    const coordDelta = Snake.MOVES[this.direction];
-    const currCoord = this.segments.shift();
+    // move the snake towards the `this.direction`
+    // this essentially generates a new Snake Head Coord
+    this.segments.push(this.head().plus(Snake.MOVES[this.direction]));
 
-    const newCoord = currCoord.plus(coordDelta);
-
-    if (this.board.isOutOfBounds(newCoord)) {
-      return false;
+    // check if the Snake's head Coord eats Apple
+    if (this.eatsApple()) {
+      this.board.newApple();
     } else {
-      this.segments.push(newCoord);
-      return true;
+      this.segments.shift();
+    }
+
+    // destroy snake if it runs off grid
+    if (this.board.isOutOfBounds(this.head())) {
+      this.segments = [];
     }
   }
 
@@ -47,18 +43,11 @@ class Snake {
   }
 }
 
-Snake.OPPOSITE_MOVES = {
-  "N": [ 1,  0],
-  "W": [ 0,  1],
-  "E": [ 0, -1],
-  "S": [-1,  0]
-}
-
 Snake.MOVES = {
-  "N": [-1,  0],
-  "W": [ 0, -1],
-  "E": [ 0,  1],
-  "S": [ 1,  0]
+  "N": new Coord(-1, 0),
+  "W": new Coord(0, -1),
+  "E": new Coord(0, 1),
+  "S": new Coord(1, 0)
 }
 
 module.exports = Snake;
